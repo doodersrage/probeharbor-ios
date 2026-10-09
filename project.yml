@@ -1,0 +1,102 @@
+name: ProbeHarbor
+options:
+  bundleIdPrefix: dev.probeharbor
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+configs:
+  Debug: debug
+  Release: release
+
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: "11.0.0"
+
+targets:
+  ProbeHarbor:
+    type: application
+    platform: iOS
+    sources:
+      - path: ProbeHarbor
+    dependencies:
+      - package: Firebase
+        product: FirebaseMessaging
+    entitlements:
+      path: ProbeHarbor/ProbeHarbor.entitlements
+      properties:
+        aps-environment: development
+    info:
+      path: ProbeHarbor/Info.plist
+      properties:
+        CFBundleDisplayName: ProbeHarbor
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIBackgroundModes:
+          - remote-notification
+        FirebaseAppDelegateProxyEnabled: false
+        PHBaseURL: $(PH_BASE_URL)
+        PHSupabaseURL: $(PH_SUPABASE_URL)
+        PHSupabaseAnonKey: $(PH_SUPABASE_ANON_KEY)
+        CFBundleURLTypes:
+          - CFBundleURLName: dev.probeharbor.ios.oauth
+            CFBundleURLSchemes:
+              - dev.probeharbor.ios
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.probeharbor.ios
+        PRODUCT_NAME: ProbeHarbor
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: NO
+
+  ProbeHarborTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: ProbeHarborTests
+    dependencies:
+      - target: ProbeHarbor
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.probeharbor.ios.tests
+        GENERATE_INFOPLIST_FILE: YES
+        BUNDLE_LOADER: $(TEST_HOST)
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/ProbeHarbor.app/ProbeHarbor
+
+schemes:
+  ProbeHarbor:
+    build:
+      targets:
+        ProbeHarbor: all
+        ProbeHarborTests: [test]
+    test:
+      config: Debug
+      targets:
+        - ProbeHarborTests
