@@ -49,9 +49,14 @@ jobs:
       - name: Test summary
         if: always()
         run: |
-          xcrun xcresulttool get test-results summary --path TestResults.xcresult --compact \
-            | python3 -c 'import json,sys; r=json.load(sys.stdin); print(f"result={r.get(\"result\")} total={r.get(\"totalTestCount\")} passed={r.get(\"passedTests\")} failed={r.get(\"failedTests\")} skipped={r.get(\"skippedTests\")}")' \
-            | tee -a "$GITHUB_STEP_SUMMARY"
+          set -o pipefail
+          xcrun xcresulttool get test-results summary --path TestResults.xcresult --compact > summary.json
+          python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("summary.json"))
+          keys = ("result", "totalTestCount", "passedTests", "failedTests", "skippedTests")
+          print("Tests: " + " ".join("%s=%s" % (k, r.get(k)) for k in keys))
+          PY
 
       - name: Upload test results
         if: failure()
