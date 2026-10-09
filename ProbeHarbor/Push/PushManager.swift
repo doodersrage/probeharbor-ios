@@ -9,8 +9,8 @@ import UserNotifications
 /// GoogleService-Info.plist and the app is signed with a push entitlement.
 @MainActor
 final class PushManager: NSObject {
-    static let alertCategory = "PROBE_ALERT"
-    static let acknowledgeAction = "ACKNOWLEDGE"
+    nonisolated static let alertCategory = "PROBE_ALERT"
+    nonisolated static let acknowledgeAction = "ACKNOWLEDGE"
 
     private nonisolated let api: ProbeHarborAPI
     private(set) var lastError: String?
