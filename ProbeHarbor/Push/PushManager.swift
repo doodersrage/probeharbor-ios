@@ -12,7 +12,7 @@ final class PushManager: NSObject {
     static let alertCategory = "PROBE_ALERT"
     static let acknowledgeAction = "ACKNOWLEDGE"
 
-    private let api: ProbeHarborAPI
+    private nonisolated let api: ProbeHarborAPI
     private(set) var lastError: String?
     private var currentToken: String?
 
@@ -70,7 +70,10 @@ final class PushManager: NSObject {
     }
 
     func unregister() async {
-        guard isAvailable, let token = currentToken ?? (try? await Messaging.messaging().token()) else { return }
+        guard isAvailable else { return }
+        var token = currentToken
+        if token == nil { token = try? await Messaging.messaging().token() }
+        guard let token else { return }
         await api.unregisterPushToken(token)
         currentToken = nil
     }
@@ -80,7 +83,7 @@ final class PushManager: NSObject {
         Messaging.messaging().apnsToken = deviceToken
     }
 
-    static func eventId(from userInfo: [AnyHashable: Any]) -> Int64? {
+    nonisolated static func eventId(from userInfo: [AnyHashable: Any]) -> Int64? {
         if let string = userInfo["event_id"] as? String { return Int64(string) }
         return (userInfo["event_id"] as? NSNumber)?.int64Value
     }
